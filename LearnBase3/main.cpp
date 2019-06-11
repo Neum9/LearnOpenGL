@@ -30,6 +30,7 @@ unsigned int VAO;
 unsigned int VBO;
 unsigned int EBO;
 
+Shader *theShader;
 
 unsigned int shaderProgram;
 
@@ -59,7 +60,10 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, frameBuffer_size_callBack);
 
-	UseShader();
+	//UseShader();
+
+	theShader = new Shader("test1.vsh", "test1.fsh");
+	theShader->setFloat("colorX", 1.0F);
 
 	Draw();
 
@@ -73,7 +77,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//draw
-		glUseProgram(shaderProgram);
+		//glUseProgram(shaderProgram);
+		theShader->use();
 
 		//float timeValue = glfwGetTime();
 		//float greenValue = sin(timeValue) / 2.0F + 0.5F;
@@ -192,5 +197,4 @@ void UseShader() {
 	glDeleteShader(vertextShader);
 	glDeleteShader(fragmentShader);
 
-	Shader theShader();
 }
