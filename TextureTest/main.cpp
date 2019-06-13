@@ -22,7 +22,7 @@ int main() {
 
 	GLFWInit();
 
-	Shader shader("Shader/test.vsh", "Shader/test.fsh");
+	Shader shader("Shader/test.vsh", "Shader/test1.fsh");
 
 	Draw();
 
@@ -38,6 +38,8 @@ int main() {
 		//draw
 		//glUseProgram(shaderProgram);
 		shader.use();
+		//shader.setInt("texture1", 0);
+		//shader.setInt("texture2", 1);
 
 		//float timeValue = glfwGetTime();
 		//float greenValue = sin(timeValue) / 2.0F + 0.5F;
@@ -141,12 +143,14 @@ void Draw() {
 
 	int width, height, nrChannels;
 
-	unsigned char *data = stbi_load("brick.jpg", &width, &height, &nrChannels, 0);
+	//unsigned char *data = stbi_load("brick.jpg", &width, &height, &nrChannels, 0);
+	unsigned char *data = stbi_load("awesomeface.jpg", &width, &height, &nrChannels, 0);
 
 	unsigned int texture;
 
 	glGenTextures(1, &texture);
 
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	if (data) {
@@ -160,9 +164,24 @@ void Draw() {
 
 	stbi_image_free(data);
 
-	//glBindTexture(GL_TEXTURE_2D, texture);
-	//glBindVertexArray(VAO);
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	/*data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		cout << "Failed to load texture" << endl;
+	}
+
+	stbi_image_free(data);*/
+
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
