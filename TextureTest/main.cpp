@@ -36,16 +36,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//draw
-		//glUseProgram(shaderProgram);
 		shader.use();
-		//shader.setInt("texture1", 0);
-		//shader.setInt("texture2", 1);
-
-		//float timeValue = glfwGetTime();
-		//float greenValue = sin(timeValue) / 2.0F + 0.5F;
-		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		//glUniform4f(vertexColorLocation, 0.0F, greenValue, 0.0F, 1.0F);
-
+		shader.setInt("texture1", 0);
+		shader.setInt("texture2", 1);
 
 		glBindVertexArray(VAO);
 
@@ -107,6 +100,9 @@ void processInput(GLFWwindow *window) {
 }
 
 void Draw() {
+
+	stbi_set_flip_vertically_on_load(true);
+
 	float vertices[] = {
 		//--Pos--			--Color--	--TextureCoord--
 		0.5F,0.5F,0.0F,		1.0F,0.0F,0.0F,	1.0F,1.0F,	//top right
@@ -164,7 +160,7 @@ void Draw() {
 
 	stbi_image_free(data);
 
-	/*data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("brick.jpg", &width, &height, &nrChannels, 0);
 	unsigned int texture2;
 	glGenTextures(1, &texture2);
 
@@ -180,9 +176,11 @@ void Draw() {
 		cout << "Failed to load texture" << endl;
 	}
 
-	stbi_image_free(data);*/
+	stbi_image_free(data);
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+
 }
