@@ -18,6 +18,8 @@ unsigned int VAO;
 unsigned int VBO;
 unsigned int EBO;
 
+float m_coe = 0.5F;
+
 int main() {
 
 	GLFWInit();
@@ -39,6 +41,8 @@ int main() {
 		shader.use();
 		shader.setInt("texture1", 0);
 		shader.setInt("texture2", 1);
+
+		shader.setFloat("m_coe", m_coe);
 
 		glBindVertexArray(VAO);
 
@@ -96,6 +100,10 @@ void frameBuffer_size_callBack(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
+	} else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		m_coe = m_coe + 0.1 > 1 ? 1 : m_coe + 0.1;
+	} else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		m_coe = m_coe - 0.1 < 0 ? 0 : m_coe - 0.1;
 	}
 }
 
@@ -149,12 +157,16 @@ void Draw() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
+	} else {
 		cout << "Failed to load texture" << endl;
 	}
 
@@ -171,8 +183,7 @@ void Draw() {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
+	} else {
 		cout << "Failed to load texture" << endl;
 	}
 
