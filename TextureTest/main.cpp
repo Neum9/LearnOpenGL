@@ -4,8 +4,12 @@
 #include <stb_image.h>
 #include <iostream>
 #include <Shader.h>
+#include <glm\glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
+using namespace glm;
 
 void GLFWInit();
 void frameBuffer_size_callBack(GLFWwindow* window, int width, int height);
@@ -20,6 +24,8 @@ unsigned int EBO;
 
 float m_coe = 0.5F;
 
+mat4 trans = mat4(1.0F);
+
 int main() {
 
 	GLFWInit();
@@ -27,6 +33,8 @@ int main() {
 	Shader shader("Shader/test.vsh", "Shader/test1.fsh");
 
 	Draw();
+
+	unsigned int transfomrLoc = glGetUniformLocation(shader.ID, "transform");
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -42,11 +50,21 @@ int main() {
 		shader.setInt("texture1", 0);
 		shader.setInt("texture2", 1);
 
+		mat4 trans1 = mat4(1.0F);
+		trans1 = rotate(trans1, (float)glfwGetTime(), vec3(0.0F, 0.0F, 1.0F));
+		glUniformMatrix4fv(transfomrLoc, 1, GL_FALSE, value_ptr(trans));
+
 		shader.setFloat("m_coe", m_coe);
 
 		glBindVertexArray(VAO);
 
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+		mat4 trans2 = mat4(1.0F);
+		trans2 = translate(trans2, vec3(1.0F, 1.0F, 0.0F));
+		glUniformMatrix4fv(transfomrLoc, 1, GL_FALSE, value_ptr(trans2));
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glBindVertexArray(0);
@@ -193,5 +211,6 @@ void Draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-
+	trans = scale(trans, vec3(0.5, 0.5, 0.5));
+	trans = rotate(trans, radians(90.0F), vec3(0.0F, 0.0F, 1.0F));
 }

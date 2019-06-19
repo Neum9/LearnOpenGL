@@ -13,12 +13,12 @@ int main() {
 
 	mat4 trans = mat4(1.0F);
 
-	vec = trans * vec;
-
+	//获得位移矩阵
 	trans = translate(trans, vec3(1.0F, 1.0F, 0.0F));
 
 	vec = trans * vec;
 
+	//结果为(2,1,0)
 	cout << vec.x << vec.y << vec.z << endl;
 
 	system("pause");
