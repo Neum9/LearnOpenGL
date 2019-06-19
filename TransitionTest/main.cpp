@@ -7,6 +7,9 @@ using namespace glm;
 using namespace std;
 
 
+const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_HEIGHT = 600;
+
 int main() {
 #pragma region DataTest
 
@@ -27,8 +30,15 @@ int main() {
 #pragma endregion
 
 	mat4 model = mat4(1.0F);
-
 	model = rotate(model, radians(-55.0F), vec3(1.0F, 0.0F, 0.0F));
+
+	mat4 view = mat4(1.0F);
+	view = translate(view, vec3(0.0F, 0.0F, -3.0F));
+
+	mat4 projection = mat4(1.0F);
+	projection = perspective(radians(45.0F), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1F, 100.0F);
+
+
 
 	return 0;
 }
