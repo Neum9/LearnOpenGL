@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,6 +21,7 @@ void processInput(GLFWwindow *window);
 void Draw();
 void Renderer();
 void InitMatrix();
+void DrawCube();
 
 GLFWwindow *window;
 
@@ -27,7 +29,6 @@ unsigned int VAO;
 unsigned int VBO;
 unsigned int EBO;
 
-Shader shader = Shader("Shader/test.vsh", "Shader/test.fsh");;
 
 mat4 model = mat4(1.0F);
 mat4 view = mat4(1.0F);
@@ -55,6 +56,8 @@ int main() {
 	GLFWInit();
 
 	Draw();
+
+	InitMatrix();
 
 	Renderer();
 
@@ -102,6 +105,7 @@ void processInput(GLFWwindow *window) {
 	}
 }
 
+//绘制图片
 void Draw() {
 
 	stbi_set_flip_vertically_on_load(true);
@@ -143,7 +147,7 @@ void Draw() {
 	int width, height, nrChannels;
 
 	//unsigned char *data = stbi_load("brick.jpg", &width, &height, &nrChannels, 0);
-	unsigned char *data = stbi_load("awesomeface.jpg", &width, &height, &nrChannels, 0);
+	unsigned char *data = stbi_load("Texture/awesomeface.jpg", &width, &height, &nrChannels, 0);
 
 	unsigned int texture;
 
@@ -167,7 +171,7 @@ void Draw() {
 
 	stbi_image_free(data);
 
-	data = stbi_load("brick.jpg", &width, &height, &nrChannels, 0);
+	data = stbi_load("Texture/brick.jpg", &width, &height, &nrChannels, 0);
 	unsigned int texture2;
 	glGenTextures(1, &texture2);
 
@@ -189,7 +193,31 @@ void Draw() {
 	glBindVertexArray(0);
 }
 
+//绘制立方体
+void DrawCube() {
+
+	//flip
+	stbi_set_flip_vertically_on_load(true);
+
+	//maybe texture would be okasi with the okasi textureCoord
+	float vertices[] = {
+		//Pos               TextureCoord
+		0.5F,0.5F,0.5F,      1.0F,1.0F,
+		0.5F,-0.5F,0.5F,	1.0F,0.0F,
+		-0.5F,-0.5F,0.5F,	0.0F,0.0F,
+		-0.5F,0.5F,0.5F,	0.0F,1.0F,
+		0.5F,0.5F,-0.5F,	1.0F,1.0F,
+		0.5F,-0.5F,-0.5F,	1.0F,0.0F,
+		-0.5F,-0.5F,-0.5F,	0.0F,0.0F,
+		-0.5F,0.5F,-0.5F,	0.0F,1.0F,
+	};
+}
+
+//渲染
 void Renderer() {
+
+	Shader shader("Shader/test.vsh", "Shader/test.fsh");
+
 	while (!glfwWindowShouldClose(window)) {
 
 		//input
@@ -225,6 +253,7 @@ void Renderer() {
 	}
 }
 
+//初始化图片
 void InitMatrix() {
 	model = rotate(model, radians(-55.0F), vec3(1.0F, 0.0F, 0.0F));
 
