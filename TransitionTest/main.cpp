@@ -66,6 +66,7 @@ int main() {
 	GLFWInit();
 
 	Draw();
+	DrawCube();
 
 	InitMatrix();
 
@@ -255,6 +256,52 @@ void DrawCube() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)3);
 	glEnableVertexAttribArray(1);
 
+	//texture
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load("Texture/awesomeface.jpg", &width, &height, &nrChannels, 0);
+
+	unsigned int texture;
+
+	glGenTextures(1, &texture);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		cout << "Failed to load texture" << endl;
+	}
+
+	stbi_image_free(data);
+
+	data = stbi_load("Texture/brick.jpg", &width, &height, &nrChannels, 0);
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		cout << "Failed to load texture" << endl;
+	}
+
+	stbi_image_free(data);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 //äÖÈ¾
@@ -277,6 +324,8 @@ void Renderer() {
 		shader.setInt("texture2", 1);
 
 		//model
+		model = mat4(1.0F);
+		model = rotate(model, (float)glfwGetTime() * radians(50.0F), vec3(0.5F, 1.0F, 0.0F));
 		int modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
 		int viewLoc = glGetUniformLocation(shader.ID, "view");
@@ -285,9 +334,15 @@ void Renderer() {
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 
 
-		glBindVertexArray(VAO);
+		//glBindVertexArray(VAO);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		//glBindVertexArray(0);
+
+		glBindVertexArray(VAO_CUBE);
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		glBindVertexArray(0);
 
@@ -297,7 +352,7 @@ void Renderer() {
 	}
 }
 
-//³õÊ¼»¯Í¼Æ¬
+//³õÊ¼»¯¾ØÕó
 void InitMatrix() {
 	model = rotate(model, radians(-55.0F), vec3(1.0F, 0.0F, 0.0F));
 
