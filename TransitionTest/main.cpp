@@ -65,7 +65,7 @@ int main() {
 
 	GLFWInit();
 
-	Draw();
+	//Draw();
 	DrawCube();
 
 	InitMatrix();
@@ -75,6 +75,9 @@ int main() {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &VAO_CUBE);
+	glDeleteBuffers(1, &VBO_CUBE);
+	glDeleteBuffers(1, &EBO_CUBE);
 
 	glfwTerminate();
 
@@ -238,6 +241,7 @@ void DrawCube() {
 		5,4,7
 	};
 
+
 	glGenVertexArrays(1, &VAO_CUBE);
 	glGenBuffers(1, &VBO_CUBE);
 	glGenBuffers(1, &EBO_CUBE);
@@ -253,7 +257,7 @@ void DrawCube() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)3);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	//texture
@@ -309,6 +313,8 @@ void Renderer() {
 
 	Shader shader("Shader/test.vsh", "Shader/test.fsh");
 
+	glEnable(GL_DEPTH_TEST);
+
 	while (!glfwWindowShouldClose(window)) {
 
 		//input
@@ -317,6 +323,7 @@ void Renderer() {
 		//render
 		glClearColor(0.2F, 0.3F, 0.3F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
 		//draw
 		shader.use();
@@ -333,12 +340,6 @@ void Renderer() {
 		int projectionLoc = glGetUniformLocation(shader.ID, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 
-
-		//glBindVertexArray(VAO);
-
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		//glBindVertexArray(0);
 
 		glBindVertexArray(VAO_CUBE);
 
