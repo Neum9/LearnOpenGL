@@ -93,7 +93,8 @@ int main() {
 	InitMatrix();
 
 	//TODO param
-	camera = new Camera(cameraPos, cameraUp, _yaw, _pitch);
+	//camera = new Camera(cameraPos, cameraUp, _yaw, _pitch);
+	camera = new Camera(cameraPos);
 
 	Renderer();
 
