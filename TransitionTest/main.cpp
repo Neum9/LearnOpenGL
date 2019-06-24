@@ -23,6 +23,7 @@ void Renderer();
 void InitMatrix();
 void DrawCube();
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 GLFWwindow *window;
 
@@ -45,6 +46,8 @@ float lastFrame = 0.0F;
 float lastX = 400, lastY = 300;
 
 float _yaw = 0, _pitch = 0;
+
+float fov = 45.0F;
 
 #pragma region cube
 
@@ -123,11 +126,10 @@ void GLFWInit() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSetCursorPosCallback(window, mouse_callback);
+
+	glfwSetScrollCallback(window, scroll_callback);
 }
 
-void frameBuffer_size_callBack(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
-}
 
 void processInput(GLFWwindow *window) {
 
@@ -151,6 +153,13 @@ void processInput(GLFWwindow *window) {
 
 }
 
+//****************************************callback********************************************//
+
+void frameBuffer_size_callBack(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
+}
+
+
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	float xOffset = xpos - lastX;
@@ -173,6 +182,18 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	}
 
 }
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
+	if (fov >= 1.0F && fov <= 45.0F) {
+		fov -= yOffset;
+	} else if (fov <= 1.0F) {
+		fov = 1.0F;
+	} else if (fov >= 45.0F) {
+		fov = 45.0F;
+	}
+}
+
+//****************************************callback********************************************//
 
 //ªÊ÷∆Õº∆¨
 void Draw() {
@@ -409,6 +430,9 @@ void Renderer() {
 		cameraFront = normalize(front);
 
 		view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		//projection
+		projection = perspective(radians(fov), 800.0F / 600.0F, 0.1F, 100.0F);
 
 		int modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
