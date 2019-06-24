@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <Shader.h>
 #include <stb_image.h>
+#include <Camera.h>
 
 using namespace glm;
 using namespace std;
@@ -36,6 +37,8 @@ mat4 model = mat4(1.0F);
 mat4 view = mat4(1.0F);
 mat4 projection = mat4(1.0F);
 
+
+
 vec3 cameraPos = vec3(0.0F, 0.0F, 3.0F);
 vec3 cameraFront = vec3(0.0F, 0.0F, -1.0F);
 vec3 cameraUp = vec3(0.0F, 1.0F, 0.0F);
@@ -48,6 +51,10 @@ float lastX = 400, lastY = 300;
 float _yaw = 0, _pitch = 0;
 
 float fov = 45.0F;
+
+Camera *camera = nullptr;
+
+bool isFirstMouse = true;
 
 #pragma region cube
 
@@ -84,6 +91,9 @@ int main() {
 	DrawCube();
 
 	InitMatrix();
+
+	//TODO param
+	camera = new Camera(cameraPos, cameraUp, _yaw, _pitch);
 
 	Renderer();
 
@@ -139,16 +149,20 @@ void processInput(GLFWwindow *window) {
 		glfwSetWindowShouldClose(window, true);
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		cameraPos += cameraSpeed * cameraFront;
+		//cameraPos += cameraSpeed * cameraFront;
+		camera->ProcessKeyboard(FORWARD, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		cameraPos -= cameraSpeed * cameraFront;
+		//cameraPos -= cameraSpeed * cameraFront;
+		camera->ProcessKeyboard(BACKWARD, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		cameraPos -= normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+		//cameraPos -= normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera->ProcessKeyboard(LEFT, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+		//cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera->ProcessKeyboard(RIGHT, deltaTime);
 	}
 
 }
@@ -162,35 +176,49 @@ void frameBuffer_size_callBack(GLFWwindow* window, int width, int height) {
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+
+	if (isFirstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		isFirstMouse = false;
+	}
+
 	float xOffset = xpos - lastX;
 	float yOffset = lastY - ypos;
+
 	lastX = xpos;
 	lastY = ypos;
 
-	float sensitivity = 0.05F;
-	xOffset *= sensitivity;
-	yOffset *= sensitivity;
 
-	_yaw += xOffset;
-	_pitch += yOffset;
 
-	if (_pitch > 89.0F) {
-		_pitch = 89.0F;
-	}
-	if (_pitch < -89.0F) {
-		_pitch = 89.0F;
-	}
+	//float sensitivity = 0.05F;
+	//xOffset *= sensitivity;
+	//yOffset *= sensitivity;
 
+	//_yaw += xOffset;
+	//_pitch += yOffset;
+
+	//if (_pitch > 89.0F) {
+	//	_pitch = 89.0F;
+	//}
+	//if (_pitch < -89.0F) {
+	//	_pitch = 89.0F;
+	//}
+
+
+	camera->ProcessMouseMovement(xOffset, yOffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
-	if (fov >= 1.0F && fov <= 45.0F) {
-		fov -= yOffset;
-	} else if (fov <= 1.0F) {
-		fov = 1.0F;
-	} else if (fov >= 45.0F) {
-		fov = 45.0F;
-	}
+	//if (fov >= 1.0F && fov <= 45.0F) {
+	//	fov -= yOffset;
+	//} else if (fov <= 1.0F) {
+	//	fov = 1.0F;
+	//} else if (fov >= 45.0F) {
+	//	fov = 45.0F;
+	//}
+
+	camera->ProcessMouseScroll(yOffset);
 }
 
 //****************************************callback********************************************//
@@ -423,16 +451,18 @@ void Renderer() {
 
 		//view = lookAt(vec3(camX, 0.0F, camZ), vec3(0.0F, 0.0F, 0.0F), vec3(0.0F, 1.0F, 0.0F));
 
-		vec3 front;
-		front.x = cos(radians(_pitch)) * cos(radians(_yaw));
-		front.y = sin(radians(_pitch));
-		front.z = cos(radians(_pitch)) * sin(radians(_yaw));
-		cameraFront = normalize(front);
+		//vec3 front;
+		//front.x = cos(radians(_pitch)) * cos(radians(_yaw));
+		//front.y = sin(radians(_pitch));
+		//front.z = cos(radians(_pitch)) * sin(radians(_yaw));
+		//cameraFront = normalize(front);
 
-		view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		//view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		view = camera->GetViewMatrix();
 
 		//projection
-		projection = perspective(radians(fov), 800.0F / 600.0F, 0.1F, 100.0F);
+		projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
 
 		int modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
