@@ -1,9 +1,11 @@
 #include <iostream>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Shader.hpp>
+#include <Camera.h>
 
 using namespace std;
 using namespace glm;
@@ -28,6 +30,14 @@ unsigned int EBO;
 unsigned int lightVAO;
 
 vec3 lightPos(1.2F, 1.0F, 2.0F);
+
+Camera camera(vec3(0.0F, 0.0F, 3.0F));
+
+float lastX = 400, lastY = 300;
+bool isFirstMouse = true;
+
+float deltaTime = 0.0F;
+float lastFrame = 0.0F;
 
 int main() {
 	GLFWInit();
@@ -80,7 +90,22 @@ void processInput(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
-
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		//cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		//cameraPos -= cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		//cameraPos -= normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		//cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+	}
 }
 
 void frameBuffer_size_callBack(GLFWwindow* window, int width, int height) {
@@ -88,11 +113,22 @@ void frameBuffer_size_callBack(GLFWwindow* window, int width, int height) {
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	if (isFirstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		isFirstMouse = false;
+	}
 
+	float xOffset = xpos - lastX;
+	float yOffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+	camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
-
+	camera.ProcessMouseScroll(yOffset);
 }
 
 void Draw() {
@@ -170,30 +206,48 @@ void Renderer() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	while (!glfwWindowShouldClose) {
+	while (!glfwWindowShouldClose(window)) {
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		//input
 		processInput(window);
 		//clear cache
 		glClearColor(0.2F, 0.3F, 0.3F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		//shader
+		//object
 		objectShader.use();
 		objectShader.setVec3("objectColor", 1.0F, 0.5F, 0.31F);
 		objectShader.setVec3("lightColor", 1.0F, 1.0F, 1.0F);
-
-
+		mat4 model = mat4(1.0F);
+		int modelLoc = glGetUniformLocation(objectShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+		mat4 view = camera.GetViewMatrix();
+		int viewLoc = glGetUniformLocation(objectShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
+		mat4 projection = perspective(radians(camera.Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+		int projectionLoc = glGetUniformLocation(objectShader.ID, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 		//render
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
 		lightShader.use();
-		mat4 model(1.0F);
+		model = mat4(1.0F);
 		model = translate(model, lightPos);
 		model = scale(model, vec3(0.2F));
-		int modelLoc = glGetUniformLocation(lightShader.ID, "model");
+		modelLoc = glGetUniformLocation(lightShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+		view = camera.GetViewMatrix();
+		viewLoc = glGetUniformLocation(lightShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
+		projection = perspective(radians(camera.Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+		projectionLoc = glGetUniformLocation(lightShader.ID, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 		//render
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
