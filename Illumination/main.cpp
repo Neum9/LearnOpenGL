@@ -3,10 +3,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Shader.h>
+#include <Shader.hpp>
 
 using namespace std;
-using namespace std;
+using namespace glm;
 
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
@@ -27,6 +27,7 @@ unsigned int EBO;
 
 unsigned int lightVAO;
 
+vec3 lightPos(1.2F, 1.0F, 2.0F);
 
 int main() {
 	GLFWInit();
@@ -164,7 +165,8 @@ void Draw() {
 }
 
 void Renderer() {
-	Shader shader("Shader/test.vsh", "Shader/test.fsh");
+	Shader objectShader("Shader/test.vsh", "Shader/object.fsh");
+	Shader lightShader("Shader/test.vsh", "Shader/light.fsh");
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -176,9 +178,24 @@ void Renderer() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		//shader
-		shader.use();
+		objectShader.use();
+		objectShader.setVec3("objectColor", 1.0F, 0.5F, 0.31F);
+		objectShader.setVec3("lightColor", 1.0F, 1.0F, 1.0F);
+
+
 		//render
 		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+		lightShader.use();
+		mat4 model(1.0F);
+		model = translate(model, lightPos);
+		model = scale(model, vec3(0.2F));
+		int modelLoc = glGetUniformLocation(lightShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+		//render
+		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
