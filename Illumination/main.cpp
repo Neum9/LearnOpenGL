@@ -25,6 +25,8 @@ unsigned int VAO;
 unsigned int VBO;
 unsigned int EBO;
 
+unsigned int lightVAO;
+
 
 int main() {
 	GLFWInit();
@@ -149,6 +151,15 @@ void Draw() {
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
+	glEnableVertexAttribArray(0);
+
 	glBindVertexArray(0);
 }
 
