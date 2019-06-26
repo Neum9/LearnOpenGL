@@ -43,7 +43,7 @@ int main() {
 	GLFWInit();
 
 	//Draw();
-	DrawWithNormal()
+	DrawWithNormal();
 
 	Renderer();
 
