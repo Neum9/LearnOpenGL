@@ -20,6 +20,7 @@ void Draw();
 void Renderer();
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+void DrawWithNormal();
 
 GLFWwindow *window;
 
@@ -257,6 +258,9 @@ void DrawWithNormal() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(0));
 	glEnableVertexAttribArray(0);
 
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -264,14 +268,14 @@ void DrawWithNormal() {
 	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(0));
 	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);
 }
 
 void Renderer() {
-	Shader objectShader("Shader/test.vsh", "Shader/object.fsh");
+	Shader objectShader("Shader/object.vsh", "Shader/object.fsh");
 	Shader lightShader("Shader/test.vsh", "Shader/light.fsh");
 
 	glEnable(GL_DEPTH_TEST);
@@ -285,13 +289,15 @@ void Renderer() {
 		//input
 		processInput(window);
 		//clear cache
-		glClearColor(0.2F, 0.3F, 0.3F, 1.0F);
+		//glClearColor(0.2F, 0.3F, 0.3F, 1.0F);
+		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		//object
 		objectShader.use();
 		objectShader.setVec3("objectColor", 1.0F, 0.5F, 0.31F);
 		objectShader.setVec3("lightColor", 1.0F, 1.0F, 1.0F);
+		objectShader.setVec3("lightPos", lightPos);
 		mat4 model = mat4(1.0F);
 		int modelLoc = glGetUniformLocation(objectShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
@@ -305,7 +311,7 @@ void Renderer() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-
+		//light
 		lightShader.use();
 		model = mat4(1.0F);
 		model = translate(model, lightPos);
