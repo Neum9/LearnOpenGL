@@ -40,6 +40,8 @@ bool isFirstMouse = true;
 float deltaTime = 0.0F;
 float lastFrame = 0.0F;
 
+float specularStrength = 0.5F;
+
 int main() {
 	GLFWInit();
 
@@ -293,11 +295,13 @@ void Renderer() {
 		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		//object
+		//**********************************object***********************************************
 		objectShader.use();
 		objectShader.setVec3("objectColor", 1.0F, 0.5F, 0.31F);
 		objectShader.setVec3("lightColor", 1.0F, 1.0F, 1.0F);
 		objectShader.setVec3("lightPos", lightPos);
+		objectShader.setFloat("specularStrength", specularStrength);
+		objectShader.setVec3("viewPos", camera.Position);
 		mat4 model = mat4(1.0F);
 		int modelLoc = glGetUniformLocation(objectShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
@@ -311,7 +315,7 @@ void Renderer() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		//light
+		//**********************************light********************************************
 		lightShader.use();
 		model = mat4(1.0F);
 		model = translate(model, lightPos);
