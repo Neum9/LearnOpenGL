@@ -63,6 +63,19 @@ glm::vec3 cubePositions[] = {
 	glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
+glm::vec3 pointLightPositions[] = {
+	glm::vec3(0.7f,  0.2f,  2.0f),
+	glm::vec3(2.3f, -3.3f, -4.0f),
+	glm::vec3(-4.0f,  2.0f, -12.0f),
+	glm::vec3(0.0f,  0.0f, -3.0f)
+};
+
+//获取数组长度
+template <typename T, size_t N>
+inline size_t Count(T(&arr)[N]) {
+	return N;
+}
+
 int main() {
 
 
@@ -255,7 +268,8 @@ void Renderer() {
 	//Shader projectorShader("Shader/projector.vsh", "Shader/projector.fsh");
 	//使用衰减的点光源
 	//Shader pointShader("Shader/point.vsh", "Shader/point.fsh");
-	Shader spotShader("Shader/spot.vsh", "Shader/spot.fsh");
+	//Shader spotShader("Shader/spot.vsh", "Shader/spot.fsh");
+	Shader mulLightShader("Shader/mulLight.vsh", "Shader/mulLight.fsh");
 
 	unsigned int diffuseTextureID = LoadTexture("Texture/container2.png");
 
@@ -283,18 +297,22 @@ void Renderer() {
 		int modelLoc, viewLoc, projectionLoc;
 
 		//**************************************lightShader***************************************
-		//lightShader.use();
-		//model = mat4(1.0F);
-		//model = translate(model, lightPos);
-		//model = scale(model, vec3(0.2F));
-		//lightShader.setMat4("model", model);
-		//view = camera->GetViewMatrix();
-		//lightShader.setMat4("view", view);
-		//projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
-		//lightShader.setMat4("projection", projection);
+		lightShader.use();
+		view = camera->GetViewMatrix();
+		lightShader.setMat4("view", view);
+		projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+		lightShader.setMat4("projection", projection);
 
-		//glBindVertexArray(vaoLight);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(vaoLight);
+		for (int i = 0; i < Count(pointLightPositions); i++) {
+
+			model = mat4(1.0F);
+			model = translate(model, pointLightPositions[i]);
+			model = scale(model, vec3(0.2F));
+			lightShader.setMat4("model", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		//**************************************lightShader***************************************
 
 		//**************************************objectShader***************************************
@@ -328,39 +346,72 @@ void Renderer() {
 		//**************************************objectShader***************************************
 
 		//**************************************cubes***************************************
-		spotShader.use();
+		mulLightShader.use();
 
-		spotShader.setVec3("light.ambient", 0.2F, 0.2F, 0.2F);
-		spotShader.setVec3("light.diffuse", 0.5F, 0.5F, 0.5F);
-		spotShader.setVec3("light.specular", 1.0F, 1.0F, 1.0F);
-		//pointShader.setVec3("light.direction", -0.2F, -1.0F, -0.3F);
-		spotShader.setVec3("light.position", lightPos);
-		spotShader.setVec3("material.specular", 0.5F, 0.5F, 0.5F);
-		spotShader.setFloat("material.shininess", 128.0F);
+		mulLightShader.setFloat("material.shininess", 64.0F);
 
-		spotShader.setVec3("light.position", camera->Position);
-		spotShader.setVec3("light.direction", camera->Front);
-		spotShader.setFloat("light.cutOff", cos(radians(12.5f)));
+		//定向光贡献
+		mulLightShader.setVec3("dirLight.ambient", 0.05F, 0.05F, 0.05F);
+		mulLightShader.setVec3("dirLight.diffuse", 0.4F, 0.4F, 0.4F);
+		mulLightShader.setVec3("dirLight.specular", 0.5F, 0.5F, 0.5F);
+		mulLightShader.setVec3("dirLight.direction", -0.2F, -1.0F, -0.3F);
 
-		//pointShader.setFloat("light.constant", 1.0F);
-		//pointShader.setFloat("light.linear", 0.09F);
-		//pointShader.setFloat("light.quadratic", 0.032F);
+		//点光源贡献
+		for (int i = 0; i < Count(pointLightPositions); i++) {
+			char str[50];
+			sprintf_s(str, 50, "pointLightList[%d].position", i);
+			mulLightShader.setVec3(str, pointLightPositions[i]);
+			//sprintf_s(str, "pointLightList[%d].cutOff", i);
+			//mulLightShader.setFloat(str, cos(radians(12.5f)));
+			//sprintf_s(str, "pointLightList[%d].outerCutOff", i);
+			//mulLightShader.setFloat("pointLightList.outerCutOff", cos(radians(17.5f)));
 
+			sprintf_s(str, 50, "pointLightList[%d].ambient", i);
+			mulLightShader.setVec3(str, 0.05F, 0.05F, 0.05F);
+			sprintf_s(str, 50, "pointLightList[%d].diffuse", i);
+			mulLightShader.setVec3(str, 0.8F, 0.8F, 0.8F);
+			sprintf_s(str, 50, "pointLightList[%d].specular", i);
+			mulLightShader.setVec3(str, 1.0F, 1.0F, 1.0F);
+
+			sprintf_s(str, 50, "pointLightList[%d].constant", i);
+			mulLightShader.setFloat(str, 1.0F);
+			sprintf_s(str, 50, "pointLightList[%d].linear", i);
+			mulLightShader.setFloat(str, 0.09F);
+			sprintf_s(str, 50, "pointLightList[%d].quadratic", i);
+			mulLightShader.setFloat(str, 0.032F);
+		}
+
+		//聚光灯贡献
+		mulLightShader.setVec3("spotLight.position", camera->Position);
+		mulLightShader.setVec3("spotLight.direction", camera->Front);
+		mulLightShader.setFloat("spotLight.cutOff", cos(radians(12.5f)));
+		mulLightShader.setFloat("spotLight.outerCutOff", cos(radians(15.0f)));
+
+		mulLightShader.setVec3("spotLight.ambient", 0.0F, 0.0F, 0.0F);
+		mulLightShader.setVec3("spotLight.diffuse", 1.0F, 1.0F, 1.0F);
+		mulLightShader.setVec3("spotLight.specular", 1.0F, 1.0F, 1.0F);
+
+		mulLightShader.setFloat("spotLight.constant", 1.0F);
+		mulLightShader.setFloat("spotLight.linear", 0.09F);
+		mulLightShader.setFloat("spotLight.quadratic", 0.032F);
+
+		//视点
+		mulLightShader.setVec3("viewPos", camera->Position);
+		//矩阵
 		view = camera->GetViewMatrix();
-		spotShader.setMat4("view", view);
+		mulLightShader.setMat4("view", view);
 		projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
-		spotShader.setMat4("projection", projection);
+		mulLightShader.setMat4("projection", projection);
 
 		glBindVertexArray(vaoObject);
 
-
-
+		//不同的位置矩阵
 		for (unsigned int i = 0; i < 10; i++) {
 			model = mat4(1.0F);
 			model = translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
 			model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
-			spotShader.setMat4("model", model);
+			mulLightShader.setMat4("model", model);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
