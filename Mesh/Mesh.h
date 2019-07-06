@@ -1,7 +1,6 @@
 #ifndef MESH_H
 #define MESH_H
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,7 +8,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Shader.hpp>
-#include <stb_image.h>
 #include <Camera.h>
 
 using namespace glm;

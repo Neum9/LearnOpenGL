@@ -1,12 +1,10 @@
-#define STB_IMAGE_IMPLEMENTATION
+
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Shader.hpp>
-#include <stb_image.h>
 #include <Camera.h>
 #include <Model.h>
 
@@ -82,7 +80,7 @@ int main() {
 
 	GLFWInit();
 
-	Draw();
+	//Draw();
 
 	camera = new Camera(vec3(0.0F, 0.0F, 3.0F));
 
@@ -267,7 +265,7 @@ void Renderer() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	Model ourModel("Model/nanosuit/nanosuit");
+	Model ourModel("Model/nanosuit/nanosuit.obj");
 	Shader modelShader("Shader/model.vsh", "Shader/model.fsh");
 
 	while (!glfwWindowShouldClose(window)) {
@@ -297,177 +295,8 @@ void Renderer() {
 		modelShader.setMat4("projection", projection);
 		ourModel.Draw(modelShader);
 
-		//**************************************lightShader***************************************
-		//lightShader.use();
-		//view = camera->GetViewMatrix();
-		//lightShader.setMat4("view", view);
-		//projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
-		//lightShader.setMat4("projection", projection);
-
-		//glBindVertexArray(vaoLight);
-		//for (int i = 0; i < Count(pointLightPositions); i++) {
-
-		//	model = mat4(1.0F);
-		//	model = translate(model, pointLightPositions[i]);
-		//	model = scale(model, vec3(0.2F));
-		//	lightShader.setMat4("model", model);
-
-		//	glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
-		//**************************************lightShader***************************************
-
-		//**************************************objectShader***************************************
-
-		//objectShader.use();
-
-		//objectShader.setVec3("light.ambient", 0.2F, 0.2F, 0.2F);
-		//objectShader.setVec3("light.diffuse", 0.5F, 0.5F, 0.5F);
-		//objectShader.setVec3("light.specular", 1.0F, 1.0F, 1.0F);
-		//objectShader.setVec3("light.position", lightPos);
-
-		//objectShader.setVec3("material.specular", 0.5F, 0.5F, 0.5F);
-		//objectShader.setFloat("material.shininess", 64.0F);
-
-		//objectShader.setVec3("viewPos", camera->Position);
-		//model = mat4(1.0F);
-		//objectShader.setMat4("model", model);
-		//objectShader.setMat4("view", view);
-		//objectShader.setMat4("projection", projection);
-
-		//glBindVertexArray(vaoObject);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, specularTextureID);
-
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-		//**************************************objectShader***************************************
-
-		//**************************************cubes***************************************
-		//mulLightShader.use();
-
-		//mulLightShader.setFloat("material.shininess", 64.0F);
-
-		////定向光贡献
-		//mulLightShader.setVec3("dirLight.ambient", 0.05F, 0.05F, 0.05F);
-		//mulLightShader.setVec3("dirLight.diffuse", 0.4F, 0.4F, 0.4F);
-		//mulLightShader.setVec3("dirLight.specular", 0.5F, 0.5F, 0.5F);
-		//mulLightShader.setVec3("dirLight.direction", -0.2F, -1.0F, -0.3F);
-
-		////点光源贡献
-		//for (int i = 0; i < Count(pointLightPositions); i++) {
-		//	char str[50];
-		//	sprintf_s(str, 50, "pointLightList[%d].position", i);
-		//	mulLightShader.setVec3(str, pointLightPositions[i]);
-		//	//sprintf_s(str, "pointLightList[%d].cutOff", i);
-		//	//mulLightShader.setFloat(str, cos(radians(12.5f)));
-		//	//sprintf_s(str, "pointLightList[%d].outerCutOff", i);
-		//	//mulLightShader.setFloat("pointLightList.outerCutOff", cos(radians(17.5f)));
-
-		//	sprintf_s(str, 50, "pointLightList[%d].ambient", i);
-		//	mulLightShader.setVec3(str, 0.05F, 0.05F, 0.05F);
-		//	sprintf_s(str, 50, "pointLightList[%d].diffuse", i);
-		//	mulLightShader.setVec3(str, 0.8F, 0.8F, 0.8F);
-		//	sprintf_s(str, 50, "pointLightList[%d].specular", i);
-		//	mulLightShader.setVec3(str, 1.0F, 1.0F, 1.0F);
-
-		//	sprintf_s(str, 50, "pointLightList[%d].constant", i);
-		//	mulLightShader.setFloat(str, 1.0F);
-		//	sprintf_s(str, 50, "pointLightList[%d].linear", i);
-		//	mulLightShader.setFloat(str, 0.09F);
-		//	sprintf_s(str, 50, "pointLightList[%d].quadratic", i);
-		//	mulLightShader.setFloat(str, 0.032F);
-		//}
-
-		////聚光灯贡献
-		//mulLightShader.setVec3("spotLight.position", camera->Position);
-		//mulLightShader.setVec3("spotLight.direction", camera->Front);
-		//mulLightShader.setFloat("spotLight.cutOff", cos(radians(12.5f)));
-		//mulLightShader.setFloat("spotLight.outerCutOff", cos(radians(15.0f)));
-
-		//mulLightShader.setVec3("spotLight.ambient", 0.0F, 0.0F, 0.0F);
-		//mulLightShader.setVec3("spotLight.diffuse", 1.0F, 1.0F, 1.0F);
-		//mulLightShader.setVec3("spotLight.specular", 1.0F, 1.0F, 1.0F);
-
-		//mulLightShader.setFloat("spotLight.constant", 1.0F);
-		//mulLightShader.setFloat("spotLight.linear", 0.09F);
-		//mulLightShader.setFloat("spotLight.quadratic", 0.032F);
-
-		////视点
-		//mulLightShader.setVec3("viewPos", camera->Position);
-		////矩阵
-		//view = camera->GetViewMatrix();
-		//mulLightShader.setMat4("view", view);
-		//projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
-		//mulLightShader.setMat4("projection", projection);
-
-		//glBindVertexArray(vaoObject);
-
-		////不同的位置矩阵
-		//for (unsigned int i = 0; i < 10; i++) {
-		//	model = mat4(1.0F);
-		//	model = translate(model, cubePositions[i]);
-		//	float angle = 20.0f * i;
-		//	model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
-		//	mulLightShader.setMat4("model", model);
-
-		//	glActiveTexture(GL_TEXTURE0);
-		//	glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
-		//	glActiveTexture(GL_TEXTURE1);
-		//	glBindTexture(GL_TEXTURE_2D, specularTextureID);
-
-		//	glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
-
-		//**************************************cubes***************************************
-
 		//check and call event,swap buffer
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-}
-
-//加载图片
-unsigned int LoadTexture(const char* name) {
-
-	stbi_set_flip_vertically_on_load(true);
-
-	int width, height, nrChannels;
-	unsigned char *data = stbi_load(name, &width, &height, &nrChannels, 0);
-
-	unsigned int textureID;
-
-	glGenTextures(1, &textureID);
-
-	//glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	if (data) {
-
-		GLenum format;
-		if (nrChannels == 1)
-			format = GL_RED;
-		else if (nrChannels == 3)
-			format = GL_RGB;
-		else if (nrChannels == 4)
-			format = GL_RGBA;
-
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	} else {
-		cout << "Failed to load texture" << endl;
-	}
-
-	stbi_image_free(data);
-
-	return textureID;
 }

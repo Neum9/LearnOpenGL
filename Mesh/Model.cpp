@@ -1,5 +1,8 @@
 #include "Model.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 void Model::Draw(Shader shader) {
 	for (unsigned int i = 0; i < meshes.size(); i++) {
 		meshes[i].Draw(shader);
@@ -45,7 +48,6 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
 		vector.y = mesh->mVertices[i].y;
 		vector.z = mesh->mVertices[i].z;
 		vertex.Position = vector;
-		vertices.push_back(vertex);
 
 		vector.x = mesh->mNormals[i].x;
 		vector.y = mesh->mNormals[i].y;
@@ -60,11 +62,13 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
 		} else {
 			vertex.TexCoords = vec2(0.0F, 0.0F);
 		}
+
+		vertices.push_back(vertex);
 	}
 	//处理索引
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; i < face.mNumIndices; j++) {
+		for (unsigned int j = 0; j < face.mNumIndices; j++) {
 			indices.push_back(face.mIndices[j]);
 		}
 	}
@@ -87,7 +91,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type
 		mat->GetTexture(type, i, &str);
 
 		bool skip = false;
-		for (unsigned int j = 0; i < textures_loaded.size(); j++) {
+		for (unsigned int j = 0; j < textures_loaded.size(); j++) {
 			if (strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
 				textures.push_back(textures_loaded[j]);
 				skip = true;
@@ -100,6 +104,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
+			textures_loaded.push_back(texture); // 添加到已加载的纹理中
 		}
 
 	}

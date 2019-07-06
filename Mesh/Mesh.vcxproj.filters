@@ -45,14 +45,4 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="assimp-vc140-mt.dll">
-      <Filter>assimp</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="assimp-vc140-mt.lib">
-      <Filter>assimp</Filter>
-    </Library>
-  </ItemGroup>
 </Project>
