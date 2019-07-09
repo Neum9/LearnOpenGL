@@ -279,10 +279,10 @@ void DrawWithNormal() {
 void Renderer() {
 	Shader objectShader("Shader/object.vsh", "Shader/object.fsh");
 	Shader lightShader("Shader/test.vsh", "Shader/light.fsh");
+	Shader singleColorShader("Shader/object.vsh", "Shader/shaderSingleColor.fsh");
 
-	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -295,11 +295,20 @@ void Renderer() {
 		//clear cache
 		//glClearColor(0.2F, 0.3F, 0.3F, 1.0F);
 		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		//glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		//glStencilMask(0xFF);
+		//**********************************object***********************************************
+		//object
+		glEnable(GL_DEPTH_TEST);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
-		//**********************************object***********************************************
+
 		objectShader.use();
 		objectShader.setVec3("objectColor", 1.0F, 0.5F, 0.31F);
 		objectShader.setVec3("lightColor", 1.0F, 1.0F, 1.0F);
@@ -319,23 +328,48 @@ void Renderer() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		//**********************************light********************************************
-		lightShader.use();
+
+		//outline
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+		singleColorShader.use();
+		float theScale = 1.1F;
+		singleColorShader.use();
 		model = mat4(1.0F);
-		model = translate(model, lightPos);
-		model = scale(model, vec3(0.2F));
-		modelLoc = glGetUniformLocation(lightShader.ID, "model");
+		model = scale(model, vec3(theScale, theScale, theScale));
+		modelLoc = glGetUniformLocation(singleColorShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
 		view = camera.GetViewMatrix();
-		viewLoc = glGetUniformLocation(lightShader.ID, "view");
+		viewLoc = glGetUniformLocation(singleColorShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
 		projection = perspective(radians(camera.Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
-		projectionLoc = glGetUniformLocation(lightShader.ID, "projection");
+		projectionLoc = glGetUniformLocation(singleColorShader.ID, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 		//render
-		glBindVertexArray(lightVAO);
+		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+		glStencilMask(0xFF);
+		glEnable(GL_DEPTH_TEST);
+
+		//**********************************light********************************************
+		//lightShader.use();
+		//model = mat4(1.0F);
+		//model = translate(model, lightPos);
+		//model = scale(model, vec3(0.2F));
+		//modelLoc = glGetUniformLocation(lightShader.ID, "model");
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+		//view = camera.GetViewMatrix();
+		//viewLoc = glGetUniformLocation(lightShader.ID, "view");
+		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
+		//projection = perspective(radians(camera.Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+		//projectionLoc = glGetUniformLocation(lightShader.ID, "projection");
+		//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
+		////render
+		//glBindVertexArray(lightVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);
 
 		//check and call event,swap buffer
 		glfwSwapBuffers(window);

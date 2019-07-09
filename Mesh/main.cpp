@@ -19,7 +19,10 @@ void GLFWInit();
 void frameBuffer_size_callBack(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void Draw();
+void DrawGrass();
 void Renderer();
+void RendererModel(Shader modelShader, Model ourModel);
+void RendererGrass(Shader shader);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 unsigned int LoadTexture(const char* name);
@@ -31,6 +34,9 @@ unsigned int vboObject;
 
 unsigned int vaoLight;
 unsigned int vboLight;
+
+unsigned int vaoGrass;
+unsigned int vboGrass;
 
 mat4 model = mat4(1.0F);
 mat4 view = mat4(1.0F);
@@ -80,7 +86,7 @@ int main() {
 
 	GLFWInit();
 
-	//Draw();
+	DrawGrass();
 
 	camera = new Camera(vec3(0.0F, 0.0F, 3.0F));
 
@@ -259,14 +265,91 @@ void Draw() {
 	glEnableVertexAttribArray(0);
 }
 
+//»­²Ý
+void DrawGrass() {
+	float vertices[] = {
+		// positions          // normals           // texture coords
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+	};
+
+	glGenVertexArrays(1, &vaoGrass);
+	glGenBuffers(1, &vboGrass);
+
+	glBindVertexArray(vaoGrass);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboGrass);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(0));
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+}
+
 //äÖÈ¾
 void Renderer() {
 
 
 	glEnable(GL_DEPTH_TEST);
 
-	Model ourModel("Model/nanosuit/nanosuit.obj");
-	Shader modelShader("Shader/model.vsh", "Shader/model.fsh");
+	//blend
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Model ourModel("Model/nanosuit/nanosuit.obj");
+	//Shader modelShader("Shader/model.vsh", "Shader/model.fsh");
+
+	Shader grassShader("Shader/grass.vsh", "Shader/grass.fsh");
+
+	grassShader.use();
+	unsigned int textureID = TextureFromFile("grass.png", "Texture");
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	grassShader.setInt("texture1", 0);
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -281,22 +364,42 @@ void Renderer() {
 		glClearColor(0.1F, 0.1F, 0.1F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		int modelLoc, viewLoc, projectionLoc;
+		//RendererModel(modelShader, ourModel);
 
-		modelShader.use();
-
-		mat4 model = mat4(1.0F);
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		modelShader.setMat4("model", model);
-		view = camera->GetViewMatrix();
-		modelShader.setMat4("view", view);
-		projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
-		modelShader.setMat4("projection", projection);
-		ourModel.Draw(modelShader);
+		RendererGrass(grassShader);
 
 		//check and call event,swap buffer
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+}
+
+//äÖÈ¾Ä£ÐÍ
+void RendererModel(Shader modelShader, Model ourModel) {
+	modelShader.use();
+	mat4 model = mat4(1.0F);
+	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+	modelShader.setMat4("model", model);
+	view = camera->GetViewMatrix();
+	modelShader.setMat4("view", view);
+	projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+	modelShader.setMat4("projection", projection);
+	ourModel.Draw(modelShader);
+}
+
+//äÖÈ¾²Ý
+void RendererGrass(Shader shader) {
+	shader.use();
+
+	mat4 model = mat4(1.0F);
+	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+	shader.setMat4("model", model);
+	view = camera->GetViewMatrix();
+	shader.setMat4("view", view);
+	projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+	shader.setMat4("projection", projection);
+
+	glBindVertexArray(vaoGrass);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

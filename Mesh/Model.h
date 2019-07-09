@@ -23,9 +23,7 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 class Model {
 public:
 	//º¯Êý
-	Model(char *path) {
-		loadModel(path);
-	}
+	Model(char *path);
 
 	void Draw(Shader shader);
 private:
