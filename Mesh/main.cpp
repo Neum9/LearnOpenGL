@@ -22,7 +22,7 @@ void Draw();
 void DrawGrass();
 void Renderer();
 void RendererModel(Shader modelShader, Model ourModel);
-void RendererGrass(Shader shader);
+void RendererGrass(Shader shader, Shader testShader);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 unsigned int LoadTexture(const char* name);
@@ -333,7 +333,6 @@ void DrawGrass() {
 //‰÷»æ
 void Renderer() {
 
-
 	glEnable(GL_DEPTH_TEST);
 
 	//blend
@@ -344,9 +343,11 @@ void Renderer() {
 	//Shader modelShader("Shader/model.vsh", "Shader/model.fsh");
 
 	Shader grassShader("Shader/grass.vsh", "Shader/grass.fsh");
+	Shader testShader("Shader/test.vsh", "Shader/test.fsh");
 
 	grassShader.use();
-	unsigned int textureID = TextureFromFile("grass.png", "Texture");
+	//unsigned int textureID = TextureFromFile("grass.png", "Texture");
+	unsigned int textureID = TextureFromFile("blending_transparent_window.png", "Texture");
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	grassShader.setInt("texture1", 0);
@@ -366,7 +367,7 @@ void Renderer() {
 
 		//RendererModel(modelShader, ourModel);
 
-		RendererGrass(grassShader);
+		RendererGrass(grassShader, testShader);
 
 		//check and call event,swap buffer
 		glfwSwapBuffers(window);
@@ -389,7 +390,7 @@ void RendererModel(Shader modelShader, Model ourModel) {
 }
 
 //‰÷»æ≤›
-void RendererGrass(Shader shader) {
+void RendererGrass(Shader shader, Shader testShader) {
 	shader.use();
 
 	mat4 model = mat4(1.0F);
@@ -401,5 +402,8 @@ void RendererGrass(Shader shader) {
 	shader.setMat4("projection", projection);
 
 	glBindVertexArray(vaoGrass);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	testShader.use();
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
