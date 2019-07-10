@@ -391,10 +391,21 @@ void RendererModel(Shader modelShader, Model ourModel) {
 
 //äÖÈ¾²Ý
 void RendererGrass(Shader shader, Shader testShader) {
+
+
+	testShader.use();
+	mat4 model = mat4(1.0F);
+	testShader.setMat4("model", model);
+	view = camera->GetViewMatrix();
+	testShader.setMat4("view", view);
+	projection = perspective(radians(camera->Zoom), 800.0F / 600.0F, 0.1F, 100.0F);
+	testShader.setMat4("projection", projection);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
 	shader.use();
 
-	mat4 model = mat4(1.0F);
-	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+	model = mat4(1.0F);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
 	shader.setMat4("model", model);
 	view = camera->GetViewMatrix();
 	shader.setMat4("view", view);
@@ -402,8 +413,7 @@ void RendererGrass(Shader shader, Shader testShader) {
 	shader.setMat4("projection", projection);
 
 	glBindVertexArray(vaoGrass);
-	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	testShader.use();
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+
 }
