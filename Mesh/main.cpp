@@ -344,8 +344,8 @@ void Renderer() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//Model ourModel("Model/nanosuit/nanosuit.obj");
-	//Shader modelShader("Shader/model.vsh", "Shader/model.fsh");
+	Model ourModel("Model/nanosuit/nanosuit.obj");
+	Shader modelShader("Shader/model.vsh", "Shader/model.fsh");
 
 	Shader grassShader("Shader/grass.vsh", "Shader/grass.fsh");
 	Shader testShader("Shader/test.vsh", "Shader/test.fsh");
@@ -370,9 +370,9 @@ void Renderer() {
 		glClearColor(0.1F, 0.1F, 0.1F, 1.0F);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//RendererModel(modelShader, ourModel);
+		RendererModel(modelShader, ourModel);
 
-		RendererGrass(grassShader, testShader);
+		//RendererGrass(grassShader, testShader);
 
 		//check and call event,swap buffer
 		glfwSwapBuffers(window);
