@@ -141,6 +141,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CubeMap.cpp" />
+    <ClCompile Include="glad.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Shader.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
