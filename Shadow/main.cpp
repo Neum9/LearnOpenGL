@@ -192,8 +192,10 @@ void Render() {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
@@ -204,11 +206,17 @@ void Render() {
 
 	Shader simpleDepthShader("Shader/simpleDepthShader.vert", "Shader/simpleDepthShader.frag");
 	Shader debugDepthQuad("Shader/debugQuadDepth.vert", "Shader/debugQuadDepth.frag");
+	Shader shader("Shader/shadow.vert", "Shader/shadow.frag");
 
 	debugDepthQuad.use();
 	debugDepthQuad.setInt("depthMap", 0);
+	shader.use();
+	shader.setInt("diffuseTexture", 0);
+	shader.setInt("shadowMap", 1);
 
 	unsigned int woodTexture = loadTexture("Texture/container2.png");
+
+	vec3 lightPos(-2.F, 4.F, -1.F);
 
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window)) {
@@ -225,7 +233,7 @@ void Render() {
 		// 1,render depth of scene to texture (from light`s perspective)
 		GLfloat near_plane = 1.0F, far_plane = 7.5F;
 		mat4 lightProj = ortho(-10.F, 10.F, -10.F, 10.F, near_plane, far_plane);
-		mat4 lightView = lookAt(vec3(-2.F, 4.F, -1.F), vec3(0.F, 0.F, 0.F), vec3(0.F, 1.F, 0.F));
+		mat4 lightView = lookAt(lightPos, vec3(0.F, 0.F, 0.F), vec3(0.F, 1.F, 0.F));
 		lightSpaceMatrix = lightProj * lightView;
 
 		simpleDepthShader.use();
@@ -242,13 +250,31 @@ void Render() {
 		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//2 render scene as normal using the generated depth/shadow map
+		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shader.use();
+		glm::mat4 projection = perspective(radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		shader.setMat4("projection", projection);
+		shader.setMat4("view", view);
+		// set light uniforms
+		shader.setVec3("viewPos", camera.Position);
+		shader.setVec3("lightPos", lightPos);
+		shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, woodTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		RenderScene(shader);
+
 		//ender depth map to quad for visual debugging
 		debugDepthQuad.use();
 		debugDepthQuad.setFloat("near_plane", near_plane);
 		debugDepthQuad.setFloat("far_plane", far_plane);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
-		renderQuad();
+		//renderQuad();
 
 		//check and call event,swap buffer
 		glfwSwapBuffers(window);

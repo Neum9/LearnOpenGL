@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShadowMappingTest", "Shadow
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shadow", "Shadow\Shadow.vcxproj", "{495EAC32-C565-4B99-AE46-9AB8CCC2254E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Instance", "Instance\Instance.vcxproj", "{1417C604-A627-4F79-84A2-0212222620C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +207,16 @@ Global
 		{495EAC32-C565-4B99-AE46-9AB8CCC2254E}.Release|x64.Build.0 = Release|x64
 		{495EAC32-C565-4B99-AE46-9AB8CCC2254E}.Release|x86.ActiveCfg = Release|Win32
 		{495EAC32-C565-4B99-AE46-9AB8CCC2254E}.Release|x86.Build.0 = Release|Win32
+		{1417C604-A627-4F79-84A2-0212222620C8}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1417C604-A627-4F79-84A2-0212222620C8}.Debug|x64.ActiveCfg = Debug|x64
+		{1417C604-A627-4F79-84A2-0212222620C8}.Debug|x64.Build.0 = Debug|x64
+		{1417C604-A627-4F79-84A2-0212222620C8}.Debug|x86.ActiveCfg = Debug|Win32
+		{1417C604-A627-4F79-84A2-0212222620C8}.Debug|x86.Build.0 = Debug|Win32
+		{1417C604-A627-4F79-84A2-0212222620C8}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1417C604-A627-4F79-84A2-0212222620C8}.Release|x64.ActiveCfg = Release|x64
+		{1417C604-A627-4F79-84A2-0212222620C8}.Release|x64.Build.0 = Release|x64
+		{1417C604-A627-4F79-84A2-0212222620C8}.Release|x86.ActiveCfg = Release|Win32
+		{1417C604-A627-4F79-84A2-0212222620C8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
